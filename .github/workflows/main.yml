@@ -1,0 +1,43 @@
+name: Build APK & Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.9' }
+
+      - name: Versi dari tag
+        id: v
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then V="${GITHUB_REF_NAME#v}"; else V="0.0.${GITHUB_RUN_NUMBER}"; fi
+          echo "name=$V" >> $GITHUB_OUTPUT
+
+      - name: Build release APK
+        run: gradle assembleRelease -PversionName=${{ steps.v.outputs.name }} -PversionCode=${{ github.run_number }} --no-daemon
+
+      - name: Rename
+        run: cp app/build/outputs/apk/release/app-release.apk JLPT-Exam-Hub-${{ steps.v.outputs.name }}.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: JLPT-Exam-Hub-*.apk
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: JLPT-Exam-Hub-*.apk
+          generate_release_notes: true
