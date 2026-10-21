@@ -1,0 +1,46 @@
+plugins {
+    id 'com.android.application'
+}
+
+def appVersionName = project.findProperty('versionName') ?: '1.0.0'
+def appVersionCode = (project.findProperty('versionCode') ?: '1').toString().toInteger()
+
+android {
+    namespace 'com.jlptexamhub.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.jlptexamhub.app'
+        minSdk 24            // Android 7.0
+        targetSdk 34
+        versionCode appVersionCode
+        versionName appVersionName
+        buildConfigField 'String', 'SITE_URL', "\"${SITE_URL}\""
+        buildConfigField 'String', 'GITHUB_REPO', "\"${GITHUB_REPO}\""
+    }
+
+    buildFeatures { buildConfig true }
+
+    signingConfigs {
+        release {
+            storeFile file('release.jks')
+            storePassword System.getenv('KS_PASS') ?: 'jlptexam123'
+            keyAlias 'jlptexam'
+            keyPassword System.getenv('KS_PASS') ?: 'jlptexam123'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint { abortOnError false; checkReleaseBuilds false }
+}
