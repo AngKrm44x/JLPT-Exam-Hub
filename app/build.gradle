@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 def appVersionName = project.findProperty('versionName') ?: '1.0.0'
@@ -17,9 +18,16 @@ android {
         versionName appVersionName
         buildConfigField 'String', 'SITE_URL', "\"${SITE_URL}\""
         buildConfigField 'String', 'GITHUB_REPO', "\"${GITHUB_REPO}\""
+        buildConfigField 'String', 'SUPABASE_URL', "\"${SUPABASE_URL}\""
+        buildConfigField 'String', 'SUPABASE_ANON', "\"${SUPABASE_ANON}\""
+        buildConfigField 'String', 'HCAPTCHA_SITEKEY', "\"${HCAPTCHA_SITEKEY}\""
     }
 
-    buildFeatures { buildConfig true }
+    buildFeatures {
+        compose true
+        buildConfig true
+    }
+    composeOptions { kotlinCompilerExtensionVersion '1.5.14' }
 
     signingConfigs {
         release {
@@ -41,6 +49,19 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+    kotlinOptions { jvmTarget = '17' }
 
+    packaging { resources { excludes += '/META-INF/{AL2.0,LGPL2.1}' } }
     lint { abortOnError false; checkReleaseBuilds false }
+}
+
+dependencies {
+    implementation platform('androidx.compose:compose-bom:2024.06.00')
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.activity:activity-compose:1.9.0'
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.compose.foundation:foundation'
+    implementation 'androidx.compose.material3:material3'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
 }
