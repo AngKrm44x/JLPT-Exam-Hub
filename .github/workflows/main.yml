@@ -2,8 +2,8 @@ name: Build APK & Release
 
 on:
   push:
-    tags: ['v*']
-  workflow_dispatch:
+    tags: ['v*']          # contoh: git tag v1.0.1 && git push --tags
+  workflow_dispatch:       # tombol manual: build saja, tanpa release
 
 permissions:
   contents: write
